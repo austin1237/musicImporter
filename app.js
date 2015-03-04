@@ -26,5 +26,5 @@ app.use(compress());
 //beatsV2()
 
 app.listen(port);
-console.log('welcome listening on port ' + port);
+console.log('welcomes listening on port ' + port);
 
