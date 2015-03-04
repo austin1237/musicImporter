@@ -1,5 +1,5 @@
+[![Build Status](https://travis-ci.org/austin1237/musicImporter.svg?branch=master)](https://travis-ci.org/austin1237/musicImporter)
 # musicImporter
-https://travis-ci.org/austin1237/musicImporter.svg?branch=master
 
 Hopefully this will import and exports my (spotifiy &amp;&amp; beats) into one another.
 
