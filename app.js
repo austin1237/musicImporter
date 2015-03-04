@@ -8,15 +8,13 @@ compress = require('koa-compress'),
  koa = require('koa'),
   co = require('co'),
  path = require('path'),
+  port = 3000,
  app = module.exports = koa();
 
 // Logger
 app.use(logger());
-
 app.use(route.get('/', beats.home));
 app.use(route.get('/token', beats.token));
-
-
 
 
 // Serve static files
@@ -26,6 +24,7 @@ app.use(serve(path.join(__dirname, 'public')));
 app.use(compress());
 
 //beatsV2()
-app.listen(3000);
-console.log('welcome')
+
+app.listen(port);
+console.log('welcome listening on port ' + port);
 

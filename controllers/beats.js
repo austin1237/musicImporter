@@ -21,7 +21,6 @@ var beatsUrl = "https://partner.api.beatsmusic.com/v1/oauth2/authorize?response_
 
 //Something is fucked up in this chain
 module.exports.token = function *token(){
-  console.log('token hit');
   var formattedTracks = [];
   var code = this.request.query.code,
     response,
@@ -29,17 +28,13 @@ module.exports.token = function *token(){
     clientId,
     myTracks;
 
-  console.log('code is', code);
   response = yield getAuthorizeToken(code);
   response = response.body;
 
-  console.log('response is', response);
   accessToken = response.access_token;
-  console.log('access token is', accessToken);
   me = yield makeAPICall('me');
   me = me.body.result || me.body;
   me = me.user_context;
-  console.log('I am ', me,  accessToken);
   //users/:user_id/mymusic/tracks
   myTracks = yield makeAPICall('users/' + me + '/mymusic/tracks?limit=150');
   _.each(myTracks.body.data, function(track){
@@ -48,7 +43,6 @@ module.exports.token = function *token(){
     obj.artist = track.artist_display_name;
     formattedTracks.push(obj);
   });
-  console.log('my tracks are', formattedTracks.length);
 
   this.body = formattedTracks;
 };
