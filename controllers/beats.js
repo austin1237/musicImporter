@@ -8,13 +8,15 @@ var views = require('co-views'),
   _ = require('lodash'),
   beatsClientId = "3pp9v3p4sgjea6r3uqsrut5f",
   beatsClientSecret = "6kv4CZTHNRMEW5g3YNQ39cQN",
-  accessToken;
-var render = views(__dirname + '/../views', {
-  map: { html: 'swig' }
-});
+  accessToken,
+  render = views(__dirname + '/../views', {
+    map: { html: 'swig' }
+  });
+
+
 
 module.exports.home = function *home() {
-var beatsUrl = "https://partner.api.beatsmusic.com/v1/oauth2/authorize?response_type=code&client_id="+ beatsClientId + "&redirect_uri=http://localhost:3000/token";
+  var beatsUrl = "https://partner.api.beatsmusic.com/v1/oauth2/authorize?response_type=code&client_id="+ beatsClientId + "&redirect_uri=http://localhost:3000/token";
   this.response.redirect(beatsUrl);
 };
 
@@ -23,10 +25,13 @@ var beatsUrl = "https://partner.api.beatsmusic.com/v1/oauth2/authorize?response_
 module.exports.token = function *token(){
   var formattedTracks = [];
   var code = this.request.query.code,
+    queries =[],
+    tracks = [],
     response,
     me,
     clientId,
-    myTracks;
+    firstCall,
+    total;
 
   response = yield getAuthorizeToken(code);
   response = response.body;
@@ -36,8 +41,30 @@ module.exports.token = function *token(){
   me = me.body.result || me.body;
   me = me.user_context;
   //users/:user_id/mymusic/tracks
-  myTracks = yield makeAPICall('users/' + me + '/mymusic/tracks?limit=150');
-  _.each(myTracks.body.data, function(track){
+  firstCall = yield makeAPICall('users/' + me + '/mymusic/tracks?limit=150');
+  total = firstCall.body.info.total;
+  total -= 150;
+  tracks = firstCall.body.data;
+
+  //Beats only allows a maximum of 150 tracks per call
+  //If more tracks are needed then the remainder is called in sets of 150
+  var offset = 150;
+    while (total > 0) {
+      queries.push(makeAPICall('users/' + me + '/mymusic/tracks?limit=150&offset=' + offset));
+      offset += 150;
+      total -= 150;
+    }
+
+    var responses = yield(queries);
+
+
+  //Strips tracks out of the response object
+  _.each(responses, function(resp){
+    tracks = tracks.concat(resp.body.data);
+  });
+
+
+  _.each(tracks, function(track){
     var obj = {};
     obj.title = track.title;
     obj.artist = track.artist_display_name;
@@ -46,6 +73,17 @@ module.exports.token = function *token(){
 
   this.body = formattedTracks;
 };
+
+function formatTracks (tracks){
+  var formattedTracks = [];
+
+  _.each(tracks, function(track){
+    var obj = {};
+    obj.title = track.title;
+    obj.artist = track.artist_display_name;
+    formattedTracks.push(tracks)
+  });
+}
 
 function getAuthorizeToken(code) {
 
@@ -67,7 +105,6 @@ function getAuthorizeToken(code) {
 
 
 
-//Tidbits limit there track count to 150
 function makeAPICall (query){
   var authOptions = {
     url: 'https://partner.api.beatsmusic.com/v1/api/' + query,
