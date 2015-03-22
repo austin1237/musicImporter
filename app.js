@@ -5,7 +5,6 @@ var beats = require('./controllers/beats'),
   serve = require('koa-static'),
   route = require('koa-route'),
   koa = require('koa'),
-  co = require('co'),
   path = require('path'),
   port = 3000,
   app = module.exports = koa();
@@ -26,4 +25,3 @@ app.use(compress());
 
 app.listen(port);
 console.log('welcomess listening on port ' + port);
-
