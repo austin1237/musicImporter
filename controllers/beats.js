@@ -1,7 +1,4 @@
-/**
- * Created by austin on 2/15/15.
- */
-
+ /*jshint esnext: true */
 var views = require('co-views'),
   parse = require('co-body'),
   request = require('co-request'),
@@ -81,7 +78,7 @@ function formatTracks (tracks){
     var obj = {};
     obj.title = track.title;
     obj.artist = track.artist_display_name;
-    formattedTracks.push(tracks)
+    formattedTracks.push(tracks);
   });
 }
 
@@ -113,4 +110,3 @@ function makeAPICall (query){
   };
   return request.get(authOptions);
 }
-
