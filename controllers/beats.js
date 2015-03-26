@@ -18,6 +18,33 @@ module.exports.home = function *home() {
 };
 
 
+module.exports.getAllTracks = function *token(accessToken){
+    console.log('get all Tracks hit', accessToken);
+    var me = {};
+
+    me = yield whoAmI(accessToken);
+    return me;
+};
+
+
+function *getChunkOfTracks (accessToken) {
+
+};
+
+
+function *whoAmI(accessToken){
+    console.log('whoAmI hit', accessToken);
+    var query = 'users/' + me + '/mymusic/tracks?limit=150',
+        response = {},
+        me = {};
+
+    response = yield makeAPICall('me', accessToken);
+    console.log('response is', response);
+    response = response.body.result || me.body;
+    me = response.user_context;
+    return me;
+};
+
 //Something is fucked up in this chain
 module.exports.token = function *token(){
   var formattedTracks = [];
@@ -30,10 +57,6 @@ module.exports.token = function *token(){
     firstCall,
     total;
 
-  response = yield getAuthorizeToken(code);
-  response = response.body;
-
-  accessToken = response.access_token;
   me = yield makeAPICall('me');
   me = me.body.result || me.body;
   me = me.user_context;
@@ -82,27 +105,8 @@ function formatTracks (tracks){
   });
 }
 
-function getAuthorizeToken(code) {
-
-  var authOptions = {
-    url: 'https://partner.api.beatsmusic.com/v1/oauth2/token',
-    form: {
-      code: code,
-      redirect_uri: 'http://localhost:3000/token',
-      grant_type: 'authorization_code'
-    },
-    headers: {
-      'Authorization': 'Basic ' + (new Buffer(beatsClientId + ':' + beatsClientSecret).toString('base64'))
-    },
-    json: true
-  };
-
-  return request.post(authOptions);
-}
-
-
-
-function makeAPICall (query){
+function makeAPICall (query, accessToken){
+    console.log('make API call hit');
   var authOptions = {
     url: 'https://partner.api.beatsmusic.com/v1/api/' + query,
     headers: { 'Authorization': 'Bearer ' + accessToken },

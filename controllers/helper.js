@@ -1,5 +1,7 @@
 /*jshint esnext: true */
-var request = require('co-request');
+var request = require('co-request'),
+beatsController = require('./beats');
+
 //App Info
 var beatsApp = {
     clientId : "3pp9v3p4sgjea6r3uqsrut5f",
@@ -50,7 +52,8 @@ module.exports.getUserAccess = function *getUserAccess(){
         this.response.redirect(spotifyApp.getAccessUrl());
         this.session.currentApp = 'spotify';
     }else{
-        this.body = 'Got Both API Tokens ' + this.session.beatsToken + '  ' + this.session.spotifyToken;
+        me = yield beatsController.getAllTracks(this.session.beatsToken);
+        this.body = 'Got Both API Tokens ' + this.session.beatsToken + '  ' + this.session.spotifyToken + ' beats userId is ' + me;
     }
 };
 
