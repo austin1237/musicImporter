@@ -52,8 +52,8 @@ module.exports.getUserAccess = function *getUserAccess(){
         this.response.redirect(spotifyApp.getAccessUrl());
         this.session.currentApp = 'spotify';
     }else{
-        me = yield beatsController.getAllTracks(this.session.beatsToken);
-        this.body = 'Got Both API Tokens ' + this.session.beatsToken + '  ' + this.session.spotifyToken + ' beats userId is ' + me;
+        tracks = yield beatsController.getAllTracks(this.session.beatsToken);
+        this.body = 'Got Both API Tokens ' + this.session.beatsToken + '  ' + this.session.spotifyToken + ' beats tracks are ' + tracks;
     }
 };
 
