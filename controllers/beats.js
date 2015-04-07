@@ -15,11 +15,9 @@ module.exports.home = function *home() {
 };
 
 module.exports.getAllTracks = function *token(accessToken){
-    console.log('get all Tracks hit', accessToken);
     var me = {};
 
     me = yield whoAmI(accessToken);
-    console.log('me is', me);
     firstCall = yield makeAPICall('users/' + me + '/mymusic/tracks?limit=150', accessToken);
     tracks = yield getTheRest(me, firstCall, accessToken);
 
@@ -45,7 +43,6 @@ function *getTheRest(me, firstCall, accessToken){
         responses = [];
         total -= 150;
 
-    console.log('total is', total);
     while (total > 0) {
         queries.push(makeAPICall('users/' + me + '/mymusic/tracks?limit=150&offset=' + offset, accessToken));
         offset += 150;
@@ -61,23 +58,49 @@ function *getTheRest(me, firstCall, accessToken){
     });
 
 
-    tracks = formatTracks(tracks);
+    tracks = sortIntoAlbums(tracks);
     return tracks;
 
 };
 
 
-function formatTracks (tracks){
-    console.log('tracks are', tracks.length);
-    var formattedTracks = [];
 
+// Example Track from beats api
+// { type: 'mymusic_track',
+//   id: 'tr55271163',
+//   title: 'Dance (A$$)',
+//   disc_number: 1,
+//   parental_advisory: true,
+//   edited_version: false,
+//   duration: 197,
+//   track_position: 7,
+//   popularity: 30,
+//   streamable: true,
+//   release_date: '2011-06-28',
+//   artist_display_name: 'Big Sean',
+// refs:
+//   { artists: [ [Object] ],
+//     album:
+//      { ref_type: 'album',
+//        id: 'al55271149',
+//        display: 'Finally Famous' },
+//artist is [ { ref_type: 'artist', id: 'ar839888', display: 'Big Sean' } ]
+
+function sortIntoAlbums (tracks){
+    var formattedTracks = [];
+    var albums = {};
     _.each(tracks, function(track){
-        var obj = {};
-        obj.title = track.title;
-        obj.artist = track.artist_display_name;
-        formattedTracks.push(tracks);
+        var albumId = track.refs.album.id;
+        if(albums[albumId]){
+            albums[albumId].tracks.push(track.title);
+        }else{
+            albums[albumId] = {};
+            albums[albumId].title = track.refs.album.display;
+            albums[albumId].artist = track.refs.artists[0].display;
+            albums[albumId].tracks = [track.title];
+        }
     });
-    return formattedTracks;
+    return albums;
 }
 
 
