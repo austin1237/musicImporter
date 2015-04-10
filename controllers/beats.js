@@ -33,7 +33,7 @@ function *whoAmI(accessToken){
     me = response.user_context;
 
     return me;
-};
+}
 
 function *getTheRest(me, firstCall, accessToken){
     var total = firstCall.body.info.total,
@@ -61,7 +61,7 @@ function *getTheRest(me, firstCall, accessToken){
     tracks = sortIntoAlbums(tracks);
     return tracks;
 
-};
+}
 
 
 
@@ -92,12 +92,12 @@ function sortIntoAlbums (tracks){
     _.each(tracks, function(track){
         var albumId = track.refs.album.id;
         if(albums[albumId]){
-            albums[albumId].tracks.push(track.title);
+            albums[albumId].tracks.push(track.title.toLowerCase());
         }else{
             albums[albumId] = {};
             albums[albumId].title = track.refs.album.display;
             albums[albumId].artist = track.refs.artists[0].display;
-            albums[albumId].tracks = [track.title];
+            albums[albumId].tracks = [track.title.toLowerCase()];
         }
     });
     return albums;

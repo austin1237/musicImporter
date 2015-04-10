@@ -54,7 +54,7 @@ module.exports.getUserAccess = function *getUserAccess(){
         this.session.currentApp = 'spotify';
     }else{
         var albums = yield beatsController.getAllTracks(this.session.beatsToken);
-        var spotifyAlbums = yield spotifyController.getAlbums(albums, this.session.spotifyToken);
+        var spotifyAlbums = yield spotifyController.convertLibrary(albums, this.session.spotifyToken);
         this.body = 'spotify album ids are' + spotifyAlbums;
 
     }
