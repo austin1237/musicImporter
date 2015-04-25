@@ -19,6 +19,19 @@ module.exports.convertLibrary = function *convertLibrary(beatsAlbums, accessToke
     return foundTracks;
 };
 
+module.exports.convertAlbumToQuery = function convertAlbumToQuery(beatsAlbum){
+    //q=album:arrival%20artist:abba&type=album
+    //querystring.stringify({foo: 'bar', baz: 'qux'}, ';', ':')
+    var query = querystring.stringify(query);
+    var searchQuery = {};
+    var mainQuery = '';
+    searchQuery.album = beatsAlbum.title;
+    searchQuery.artist = beatsAlbum.artist;
+    searchQuery = querystring.stringify(searchQuery, '%20', ':');
+    mainQuery = 'search?q=' + searchQuery+ '&type=album';
+    return mainQuery;
+};
+
 
 //Getting Albums Ids via search with album title
 function *getAlbumIds(beatsAlbums, accessToken){

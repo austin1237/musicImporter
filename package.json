@@ -7,9 +7,9 @@
     "test": "mocha --harmony"
   },
   "dependencies": {
-    "chai": "^2.1.0",
     "co-body": "^0.0.1",
     "co-views": "^0.2.0",
+    "co-request": "*",
     "koa": "^0.6.0",
     "koa-compress": "^1.0.6",
     "koa-logger": "^1.2.0",
@@ -18,11 +18,11 @@
     "koa-static": "^1.4.5",
     "koa-session": "*",
     "lodash": "^3.3.1",
-    "mocha": "^2.1.0",
     "swig": "^1.3.2"
   },
   "devDependencies": {
     "supertest": "^0.12.1",
-    "mocha": "^1.18.2"
+    "mocha": "^2.1.0",
+    "chai": "^2.1.0",
   }
 }
