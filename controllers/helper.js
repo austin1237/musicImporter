@@ -71,3 +71,8 @@ exports.token = function *token(){
     console.log('cookie is', this.session);
     yield exports.getUserAccess;
 };
+
+exports.standarizeNames = function(name){
+    var newName = name.replace(/(\s|-|[(]|[)])/g, '');
+    return newName;
+};
