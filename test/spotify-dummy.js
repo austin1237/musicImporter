@@ -5,6 +5,6 @@ exports.album1 = {
 };
 
 exports.album2 = {
-     title: 'The City', 
+     title: 'The City',
      artist: 'Madeon'
 };

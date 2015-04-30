@@ -1,13 +1,13 @@
 /*jshint esnext: true */
 var views = require('co-views'),
-    parse = require('co-body'),
-    request = require('co-request'),
-    _ = require('lodash'),
-    beatsClientId = "3pp9v3p4sgjea6r3uqsrut5f",
-    beatsClientSecret = "6kv4CZTHNRMEW5g3YNQ39cQN",
-    render = views(__dirname + '/../views', {
+parse = require('co-body'),
+request = require('co-request'),
+_ = require('lodash'),
+beatsClientId = "3pp9v3p4sgjea6r3uqsrut5f",
+beatsClientSecret = "6kv4CZTHNRMEW5g3YNQ39cQN",
+render = views(__dirname + '/../views', {
     map: { html: 'swig' }
-    });
+});
 
 module.exports.home = function *home() {
     var beatsUrl = "https://partner.api.beatsmusic.com/v1/oauth2/authorize?response_type=code&client_id="+ beatsClientId + "&redirect_uri=http://localhost:3000/token";
@@ -36,12 +36,13 @@ function *whoAmI(accessToken){
 }
 
 function *getTheRest(me, firstCall, accessToken){
-    var total = firstCall.body.info.total,
-        queries = [],
-        tracks = firstCall.body.data,
-        offset = 150,
-        responses = [];
-        total -= 150;
+    var total = firstCall.body.info.total;
+    var queries = [];
+    var tracks = firstCall.body.data;
+    var albums = {};
+    var offset = 150;
+    var responses = [];
+    total -= 150;
 
     while (total > 0) {
         queries.push(makeAPICall('users/' + me + '/mymusic/tracks?limit=150&offset=' + offset, accessToken));
@@ -57,10 +58,8 @@ function *getTheRest(me, firstCall, accessToken){
         }
     });
 
-
-    tracks = sortIntoAlbums(tracks);
-    return tracks;
-
+    albums = sortIntoAlbums(tracks);
+    return albums;
 }
 
 
@@ -91,13 +90,15 @@ function sortIntoAlbums (tracks){
     var albums = {};
     _.each(tracks, function(track){
         var albumId = track.refs.album.id;
-        if(albums[albumId]){
-            albums[albumId].tracks.push(track.title.toLowerCase());
-        }else{
-            albums[albumId] = {};
-            albums[albumId].title = track.refs.album.display;
-            albums[albumId].artist = track.refs.artists[0].display;
-            albums[albumId].tracks = [track.title.toLowerCase()];
+        if(track.streamable){
+            if(albums[albumId]){
+                albums[albumId].tracks.push(track.title.toLowerCase());
+            }else{
+                albums[albumId] = {};
+                albums[albumId].title = track.refs.album.display;
+                albums[albumId].artist = track.refs.artists[0].display;
+                albums[albumId].tracks = [track.title.toLowerCase()];
+            }
         }
     });
     return albums;
