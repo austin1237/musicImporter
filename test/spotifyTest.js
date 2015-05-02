@@ -1,7 +1,10 @@
 var expect = require('chai').expect;
+var _ = require('lodash');
 var controller = require('../controllers/spotify');
+var helper = require('../controllers/helper');
 var dummyData = require('./spotify-dummy');
-
+var beatsUserData = require('./beatsUserData');
+var spotifyAlbums = require('./spotifyAlbums');
 describe('testing spotify functions', function(){
 
     //Example from spotify API
@@ -15,4 +18,17 @@ describe('testing spotify functions', function(){
     expect(query).to.equal('search?q=album:Finally%20Famous%20artist:Big%20Sean&type=album');
     expect(query2).to.equal('search?q=album:The%20City%20artist:Madeon&type=album');
   });
+
+
+  //Match off of track number instead of name (problem might be singles instead of albums);
+  it('testing the matching of tracks', function(){
+      console.log('lets match');
+      var massagedData = controller.massageData(spotifyAlbums);
+      var matched = controller.matchTracks(beatsUserData, massagedData);
+      console.log('not found is', matched.notFound);
+      expect(matched.found.length).to.not.equal(0);
+      expect(matched.notFound.length).to.equal(0);
+  });
+
+
 });

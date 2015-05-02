@@ -13,10 +13,27 @@ module.exports.convertLibrary = function *convertLibrary(beatsAlbums, accessToke
 
     albumIds = yield getAlbumIds(beatsAlbums, accessToken);
     spotAlbums = yield getAlbums(albumIds, accessToken);
-    spotTracks = extractTracks(spotAlbums);
-    foundTracks = matchTracks(beatsAlbums, spotTracks);
+    var fs = require('fs');
+    var util = require('util');
+    fs.writeFileSync('./test/spotifyAlbums.json', util.inspect(spotAlbums, false, null) , 'utf-8');
+    return [];
+};
 
-    return foundTracks;
+exports.massageData = function(albums){
+    var positions = {};
+    var names = {};
+    var massagedData = {};
+    _.each(albums, function(album){
+        _.each(album.tracks.items, function(track){
+            var pkey = album.name + album.artists[0].name +  track.track_number;
+            pkey = helper.standarizeNames(pkey);
+            positions[pkey] = track.id;
+            names[helper.standarizeNames(track.name)] = track.id;
+        });
+    });
+    massagedData.positions = positions;
+    massagedData.names = names;
+    return massagedData;
 };
 
 module.exports.convertAlbumToQuery = function convertAlbumToQuery(beatsAlbum){
@@ -50,7 +67,6 @@ function *getAlbumIds(beatsAlbums, accessToken){
             var albums = resp.body.albums;
             if(albums.items.length){
                 albumIds = albumIds.concat(albums.items[0].id);
-            }else{
             }
         }
     });
@@ -81,52 +97,33 @@ function *getAlbums(albumIds, accessToken){
     return albums;
 }
 
-function matchTracks(beatsAlbums, spotifyTracks){
-    var foundTracks = [];
-    var found = 0;
-    var notFound = 0;
-    var notFoundTracks = [];
+//Matches first based off of albums and track positions;
+ exports.matchTracks = function (beatsAlbums, massagedData){
+    var spotifyPostions = massagedData.positions;
+    var spotifyNames = massagedData.names;
+    var names = massagedData.names;
+    var found = [];
+    var notFound= [];
     _.each(beatsAlbums, function(album){
-        _.each(album.tracks, function(track){
-            if(spotifyTracks[helper.standarizeNames(track)]){
-                foundTracks.push(spotifyTracks[track]);
-                found++;
+        _.each(album.songs, function(song){
+            var posKey = album.title + album.artist + song.trackPosition;
+            var namKey = helper.standarizeNames(song.name);
+            posKey = helper.standarizeNames(posKey);
+            if(spotifyPostions[posKey]){
+                found.push(spotifyPostions[posKey]);
+            }else if(spotifyNames[namKey]){
+                found.push(spotifyNames[namKey]);
             }else{
-                if(album.artist.toLowerCase() === 'deadmau5'){
-                    console.log('not found', track.toLowerCase());
-                }
-
-                notFoundTracks.push(track);
-                notFound++;
+                song.artist = album.artist;
+                song.album = album.title;
+                notFound.push(song);
             }
         });
     });
-    //console.log('total from beats is', found + notFound);
-    console.log('found', found, 'notFound', notFound);
-    //console.log('not found beats tracks', notFoundTracks);
-    return foundTracks;
-}
+    console.log('result is', found.length, notFound.length);
+    return {found: found, notFound : notFound};
+};
 
-function extractTracks(spotAlbums){
-    var tracks = {};
-    var totalTracks = 0;
-    _.each(spotAlbums, function(album){
-        if(album.artists[0].name.toLowerCase() === 'deadmau5'){
-            console.log('somethings wrong spotify');
-            _.each(album.tracks.items,function(track){
-                console.log(track.name.toLowerCase());
-            });
-        }
-        _.each(album.tracks.items,function(track){
-            if(track.type === 'track'){
-                tracks[helper.standarizeNames(track.name)] = track.id;
-                totalTracks++;
-            }
-        });
-    });
-    //console.log('total tracks from spotify are', totalTracks);
-    return tracks;
-}
 
 function makeApiCall (query, accessToken){
     var authOptions = {

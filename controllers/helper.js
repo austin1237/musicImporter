@@ -73,7 +73,7 @@ exports.token = function *token(){
 };
 
 exports.standarizeNames = function(name){
-    var newName = name.replace(/(\s|-|feat.*?[)]|[[]|]|[(]|[)]|'|‘|’)/g, '');
+    var newName = name.replace(/(\s|-|feat.*|[[]|]|[(]|[)]|'|'|‘|’|[.])/g, '');
     newName = newName.toLowerCase();
     return newName;
 };

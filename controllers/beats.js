@@ -21,6 +21,10 @@ module.exports.getAllTracks = function *token(accessToken){
     firstCall = yield makeAPICall('users/' + me + '/mymusic/tracks?limit=150', accessToken);
     tracks = yield getTheRest(me, firstCall, accessToken);
 
+    var fs = require('fs');
+    var util = require('util');
+    fs.writeFileSync('./test/beatsUserData.json', util.inspect(tracks, false, null) , 'utf-8');
+
     return tracks;
 };
 
@@ -31,7 +35,6 @@ function *whoAmI(accessToken){
     response = yield makeAPICall('me', accessToken);
     response = response.body.result || me.body;
     me = response.user_context;
-
     return me;
 }
 
@@ -92,12 +95,12 @@ function sortIntoAlbums (tracks){
         var albumId = track.refs.album.id;
         if(track.streamable){
             if(albums[albumId]){
-                albums[albumId].tracks.push(track.title.toLowerCase());
+                albums[albumId].songs.push({trackPosition: track.track_position, name : track.title});
             }else{
                 albums[albumId] = {};
                 albums[albumId].title = track.refs.album.display;
                 albums[albumId].artist = track.refs.artists[0].display;
-                albums[albumId].tracks = [track.title.toLowerCase()];
+                albums[albumId].songs = [{trackPosition: track.track_position, name : track.title}];
             }
         }
     });
